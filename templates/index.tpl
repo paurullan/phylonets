@@ -29,7 +29,7 @@
         <button type="submit" class="btn index-submit-button" tabindex="2">Process cluster</button>
         <legend>Clusters</legend>
             <span class="help-block">Cluster list from items, seppared by parens and commas.</span>
-            <input name="clusters" class="span9" type="text" placeholder="(1, 2), (3, 4)" tabindex="1">
+            <input name="clusters" required="true" class="span9" type="text" placeholder="(1, 2), (3, 4)" tabindex="1">
         </label>
         </fieldset>
     </form>
@@ -39,7 +39,7 @@
         <button type="submit" class="btn index-submit-button" tabindex="4">eNewick</button>
         <legend>eNewick</legend>
             <span class="help-block">Input an <a href="/help#intro-enewick">eNewick format graph</a>.</span>
-            <input class="span9" type="text" name="enewick" placeholder="((4, 5#1)2, (#1, 6)3);" tabindex="3">
+            <input class="span9" required="true" type="text" name="enewick" placeholder="((4, 5#1)2, (#1, 6)3);" tabindex="3">
         </label>
         </fieldset>
     </form>
@@ -62,7 +62,7 @@
         <button type="submit" style="float: right"
                 class="btn" tabindex="21">
                 Upload and process</button>
-        <input name="data" type="file" tabindex="22">
+        <input name="data" required="true" type="file" tabindex="22">
         </fieldset>
 
     </form>

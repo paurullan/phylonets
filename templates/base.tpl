@@ -45,7 +45,7 @@
       <hr>
       <div class="footer">
         <div class="container-fluid">
-          <p><a href="/about">CC SA + BSA + Affero</a>, <a href="http://rullan.cat">Pau Ruŀlan Ferragut</a></p>
+          <p><a href="/about">Creative Common ShareAlike + BSD</a>, <a href="http://rullan.cat">Pau Ruŀlan Ferragut</a></p>
         </div>
       </div>
 

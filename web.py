@@ -149,7 +149,10 @@ def process_eNewick_post():
     return process_enewick(phrase)
 
 def process_enewick(phrase):
-    g = enewick.enewick_to_phylonet(phrase)
+    try:
+        g = enewick.enewick_to_phylonet(phrase)
+    except enewick.MalformedNewickException:
+        redirect("/?error=enewick")
     trans = {}
     for node in g.nodes():
         if "#" in node:
@@ -164,7 +167,10 @@ def get_network_from_cluster(cluster):
     if len(cluster) > MAX_QUOTED:
         redirect("/?error=too_long")
     unquoted = urllib.unquote_plus(cluster)
-    clusters = ast.literal_eval(unquoted)
+    try:
+        clusters = ast.literal_eval(unquoted)
+    except SyntaxError:
+        redirect("/?error=syntax")
     network = cluster_networks.construct(clusters)
     return network
 
@@ -243,6 +249,10 @@ def repr_network():
             msg = "The input is too long"
         elif error == 'upload':
             msg = "Error during the upload; please check the file content."
+        elif error == 'syntax':
+            msg = "Incorrect input; please check the syntax"
+        elif error == 'enewick':
+            msg = "Incorrect eNewick; please check the ending «;»"
         vals['error'] = msg
     return vals
 
@@ -256,6 +266,12 @@ def help():
 @view('templates/about')
 def about():
     return {}
+
+@route("/clusters/")
+@route("/cluster/")
+@route("/input/")
+def redirect_main():
+    redirect("/")
 
 
 @route('/static/<filepath:path>')
