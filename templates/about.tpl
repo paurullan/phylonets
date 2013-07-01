@@ -17,9 +17,8 @@
 <div class="span5">
   <h3>Downloads</h3>
     <ul>
-      <li> <a href="">Phylonets code</a> </li>
-      <li> <a href="">Website</a> </li>
-      <li> <a href="">Memòria del projecte (en català)</a> </li>
+      <li> <a href="https://github.com/paurullan/phylonets">Phylonets code</a> </li>
+      <li> <a href="/static/pfc_paurullan-reconet.pdf">Memòria del projecte (en català)</a> </li>
     </ul>
 </div>
 
