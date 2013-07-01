@@ -1,0 +1,9 @@
+from nose.tools import with_setup
+
+def test_generator():
+    # ...
+    yield func, arg, arg # ...
+
+@with_setup(setup_func, teardown_func)
+def func(arg):
+    assert something_about(arg)

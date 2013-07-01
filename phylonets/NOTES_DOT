@@ -1,0 +1,2 @@
+# dot -T«type» input -o output
+dot -Tpng a.dot -o a.png
