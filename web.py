@@ -169,7 +169,7 @@ def get_network_from_cluster(cluster):
     unquoted = urllib.unquote_plus(cluster)
     try:
         clusters = ast.literal_eval(unquoted)
-    except SyntaxError:
+    except (SyntaxError, ValueError):
         redirect("/?error=syntax")
     network = cluster_networks.construct(clusters)
     return network
