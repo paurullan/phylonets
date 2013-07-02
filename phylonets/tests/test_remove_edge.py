@@ -220,3 +220,32 @@ class TestRemoveEdgeFourthExample(unittest.TestCase):
         tree_childs = construct_treechild(self.G)
         gold = []
         self.assertItemsEqual(tree_childs, gold)
+
+
+class TestRemoveEdgeFithExample(unittest.TestCase):
+    def setUp(self):
+        clusters = [(2, 3), (3, 4), (4, 5), (1, 2, 3), (1,2,3,4)]
+        self.G = construct(clusters)
+
+    def test_treechild(self):
+        self.assertFalse(is_treechild(self.G))
+
+    def test_problematic_treechild(self):
+        node = problematic_treechild_nodes(self.G)
+        gold = ["3,4", ]
+        self.assertItemsEqual(node, gold)
+
+    def test_removable_edges(self):
+        edges = removable_edges(self.G)
+        gold = [("2,3", "3h"), ("4,5", "4h")]
+        self.assertItemsEqual(edges, gold)
+
+    def test_all_edges(self):
+        edges = removable_edges(self.G)
+        for edge in edges:
+            self.assertFalse(remove_edge(self.G, edge))
+
+    def test_construct(self):
+        tree_childs = construct_treechild(self.G)
+        gold = []
+        self.assertItemsEqual(tree_childs, gold)

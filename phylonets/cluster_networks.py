@@ -212,9 +212,10 @@ def _test_individual_v(G, edge, v, root):
     ws = LCA(G, u, v, root)
     wi = G.successors(h)
     assert len(wi) == 1, "Hybrids must have only one child"
-    w1 = wi[0]
+    # w1 = wi[0]
     leaves = lambda x: _leaves_from(G, x)
-    leaves_w1 = leaves(w1)
+    leaves_u = leaves(u)
+    leaves_v = leaves(v)
     def check_reticular_paths(u, ws):
         paths = lambda w: nx.all_simple_paths(G, source=w, target=u)
         for w in ws:
@@ -228,7 +229,7 @@ def _test_individual_v(G, edge, v, root):
         uis.remove(w)
         for ui in uis:
             leaves_ui = leaves(ui)
-            xs = leaves_w1 - leaves_ui
+            xs = leaves_ui - leaves(u)
             if any([is_strict_ancestor(G, x, ui, root) for x in xs]):
                 return False
         return True
@@ -241,7 +242,7 @@ def _test_individual_v(G, edge, v, root):
         return False
     # 3. intersection w - u - v
     for w in ws:
-        leaves_out = leaves(w) - leaves(v) - leaves(u)
+        leaves_out = leaves(w) - leaves_v - leaves_u
         for leaf in leaves_out:
             if is_strict_ancestor(G, dest=leaf, strict=w, root=root):
                 return False
