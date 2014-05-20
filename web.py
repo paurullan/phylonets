@@ -3,23 +3,22 @@
 
 from __future__ import print_function, division
 
-__version__ = "0.0.1"
+"""
+Version of the phylonet project with only the cluster hard.
+"""
+
+__version__ = "0.0.2"
 
 import re
 import sys
-import json
 import ast
 import urllib
-import time
 
 from bottle import route, run, static_file
 from bottle import redirect, view, post, request
 from bottle import Response
 
 import networkx as nx
-
-from redis import Redis
-from rq import Queue
 
 import logging
 log = logging.getLogger()
@@ -29,7 +28,7 @@ from phylonets import cluster_networks
 from phylonets import enewick
 
 # importing the cached calculations
-from proxy import cluster_soft, cluster_hard, tree_child_families
+from proxy import cluster_hard
 
 DEBUG = False
 MAX_SUBTREES = 25*1000
@@ -84,32 +83,13 @@ def get_dot(G_orig):
 def process_cluster(cluster):
     network = get_network_from_cluster(cluster)
     hard = cluster_hard(network)
-    subtrees = cluster_networks.potential_number_of_calls(network)
-    soft_too_expensive = subtrees > MAX_SUBTREES
-    async = not DEBUG
-    q = Queue(connection=Redis(), default_timeout=60*15, async=async)
-    if not soft_too_expensive:
-        soft_job = q.enqueue(cluster_soft, network)
-        soft_job_id = soft_job.id
-    else:
-        soft_job_id = None
-    if not cluster_networks.is_treechild(network):
-        families_job = q.enqueue(tree_child_families, network)
-        families_job_id = families_job.id
-    else:
-        families_job_id = None
     G = network
     return {
         'cluster': cluster,
         'network_dot': get_dot(G),
         'network_ascii': network.nodes(),
         'network_hard': hard,
-        'subtrees': subtrees,
-        'queue_key': q.key,
-        'soft_job_id': soft_job_id,
-        'soft_too_expensive': 1 if soft_too_expensive else 0,
-        'families_job_id': families_job_id,
-        'is_treechild': cluster_networks.is_treechild(G),
+        # status values
         'number_nodes': len(G.nodes()),
         'number_edges': len(G.edges()),
         'number_hybrids': len(cluster_networks.hybrid_nodes(G)),
@@ -183,60 +163,10 @@ def download_hard(cluster):
     s = str(hard)
     r = Response(body=s, status=200)
     r.set_header('Content-Type', 'text/txt')
-    r.set_header('Content-Disposition', 'attachment; filename="phylonetwork_soft.txt"')
-    return r
-
-@route("/network/<cluster>/soft/download")
-def download_soft(cluster):
-    g = get_network_from_cluster(cluster)
-    async = not DEBUG
-    q = Queue(connection=Redis(), default_timeout=60*15, async=async)
-    job = q.enqueue(cluster_soft, g)
-    for i in range(10):
-        if not job.result:
-            time.sleep(5)
-        else:
-            break
-    else:
-        redirect("/?error='problem generating the file'")
-    s = str(job.result)
-    r = Response(body=s, status=200)
-    r.set_header('Content-Type', 'text/txt')
-    r.set_header('Content-Disposition', 'attachment; filename="phylonetwork_soft.txt"')
+    r.set_header('Content-Disposition', 'attachment; filename="phylonetwork_hard.txt"')
     return r
 
 ###
-# Queues and jobs
-@route("/job/families/<queue_key>/<job_id>")
-def process_job_treechild(queue_key, job_id):
-    redis_connection = Redis()
-    q = Queue.from_queue_key(queue_key, redis_connection)
-    job = q.safe_fetch_job(job_id)
-    if job.result != None:
-        # This construction may seem weird but the tree-child families may return
-        # empty so we cannot just check against «if job.result»
-        if not job.result:
-            return {'status': 'done', 'value': "", }
-        # make web ready and then transform to pydot
-        value = [get_dot(g) for g in job.result]
-        return {'status': 'done',
-                'value': value, }
-    else:
-        return {'status': 'pending'}
-
-@route("/job/soft/<queue_key>/<job_id>")
-def process_job_soft(queue_key, job_id):
-    redis_connection = Redis()
-    q = Queue.from_queue_key(queue_key, redis_connection)
-    job = q.safe_fetch_job(job_id)
-    if job.result:
-        value =  json.dumps(list(job.result))
-        return {'status': 'done',
-                'value': value, }
-    else:
-        return {'status': 'pending'}
-###
-
 @route("/")
 @view('templates/index')
 def repr_network():
